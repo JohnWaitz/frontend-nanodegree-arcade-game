@@ -1,4 +1,21 @@
 /**
+ * @description Superclasse dos personagens Player e Enemy do jogo
+ * @param {number} x - Localização no eixo X
+ * @param {number} y - Localização no eixo Y
+ */
+var Character = function(x, y) {
+	this.x = x;
+	this.y = y;
+}
+
+/**
+ * @description Desenha os personagens na tela
+ */
+Character.prototype.render = function() {
+	ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
+
+/**
  * @description Enemies our player must avoid
  * @constructor
  * @param {number} x - Localização no eixo X
@@ -12,14 +29,21 @@
  * uma função "checkColiision" fora da classe, poluindo o escopo global.
  */
 var Enemy = function(x, y, speed, player) {
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
+    Character.call(this, x, y);
     this.sprite = 'images/enemy-bug.png';
-    this.x = x;
-    this.y = y;
     this.speed = speed;
-	this.player = player;
+	  this.player = player;
 };
+
+/**
+ * @description Enemy herda a superclasse Character
+ */
+Enemy.prototype = new Character();
+
+/**
+ * @description Correção do ponteiro do construtor de Enemy
+ */
+Enemy.prototype.constructor = Enemy;
 
 /**
  * @description Realiza a checagem entre a posição do inimigo e a do jogador
@@ -88,13 +112,6 @@ Enemy.prototype.update = function(dt) {
 };
 
 /**
- * @description Draw the enemy on the screen, required method for game
- */
-Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
-
-/**
  * @description Now write your own player class
  * This class requires an update(), render() and
  * a handleInput() method.
@@ -102,10 +119,21 @@ Enemy.prototype.render = function() {
  * @constructor
  */
 var Player = function() {
+    Character.call(this);
     this.sprite = 'images/char-boy.png';
     this.x = 200;
     this.y = 380;
 };
+
+/**
+ * @description Player herda a superclasse Character
+ */
+Player.prototype = new Character();
+
+/**
+ * @description Correção do ponteiro do construtor de Player
+ */
+Player.prototype.constructor = Player;
 
 /**
  * @description Ajusta o personagem para se mover corretamente no canvas
@@ -171,6 +199,9 @@ Player.prototype.reset = function() {
   }, 100);
 }
 
+/**
+ * @description Verifica se o player atendeu a condição para vencer o jogo
+ */
 Player.prototype.checkWinnerCondition = function() {
   if (this.y === -30) {
      this.reset();
@@ -182,13 +213,6 @@ Player.prototype.checkWinnerCondition = function() {
  */
 Player.prototype.update = function() {
     this.checkWinnerCondition();
-};
-
-/**
- * @description  Draw the player on the screen, required method for game
- */
-Player.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
 /**
@@ -227,11 +251,11 @@ Player.prototype.handleInput = function(key) {
 var player = new Player();
 
 var allEnemies = [
-  new Enemy(0,55,100, player),
-  new Enemy(0,140,200, player),
-  new Enemy(0,220,150, player),
-  new Enemy(0,140,50, player),
-  new Enemy(0,55,250, player)
+  new Enemy(-100,55,100, player),
+  new Enemy(-100,140,200, player),
+  new Enemy(-100,220,150, player),
+  new Enemy(-100,140,50, player),
+  new Enemy(-100,55,250, player)
 ];
 
 // This listens for key presses and sends the keys to your

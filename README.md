@@ -15,7 +15,8 @@ Para dar início ao jogo, abra o arquivo index.html em seu navegador.
 ## Notas de Revisão
 
 #### #1 Revisão
-> Ao acessar uma instância da classe **Player** dentro de um método da classe **Enemy** ocorre a violação do princípio de encapsulamento, que deve ser evitada.
+> REQUISITO - Ao acessar uma instância da classe **Player** dentro de um método
+da classe **Enemy** ocorre a violação do princípio de encapsulamento, que deve ser evitada.
 
 ```
 Enemy.prototype.checkCollision = function() {
@@ -50,3 +51,8 @@ Enemy.prototype.checkCollision = function() {
 ```
 
 Esta é uma das soluções mais "elegantes" dentro do OOP em ES5, pois evita que o escopo global seja poluído. Uma segunda alternativa seria atribuir o método *checkCollision* de **Enemy** ao escopo global, chamando a função na estrutura da **engine.js** e passando os objetos *player* e *allEnemies* como argumentos.
+
+> SUGESTÃO - Se analisarmos o código, veremos que as classes Enemy e Player possuem atributos(x, y, sprite) idênticos, e inclusive um mesmo método render() de mesma funcionalidade...
+... Neste caso, poderíamos ter uma superclasse Character com os atributos x, y, sprite e com o método render(), e as classes Enemy e Player poderiam ser subclasses que herdariam esses atributos em comum de Character.
+
+Visando atender à sugestão acima, foi implementada a superclasse **Character** para que as classes filhas **Player** e **Enemy** possam herdar atributos e o método *render* em comum.
