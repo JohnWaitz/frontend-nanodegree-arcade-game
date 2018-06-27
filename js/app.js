@@ -4,22 +4,41 @@
  * @param {number} x - Localização no eixo X
  * @param {number} y - Localização no eixo Y
  * @param {number} speed - Velocidade de movimento do inimigo
+ * @param {object} player - Instancia da classe Player ativa no jogo para que
+ * seja possível calcular a colisão entre o inimigo e o jogador
+ * Embora este último parâmetro caracterize acoplamento de classes
+ * (uma má prática em OOP), foi realizada a implementação visando atender
+ * as orientações da primeira revisão do projeto sem que seja necessária criar
+ * uma função "checkColiision" fora da classe, poluindo o escopo global.
  */
-var Enemy = function(x, y, speed) {
+var Enemy = function(x, y, speed, player) {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
     this.x = x;
     this.y = y;
     this.speed = speed;
+	this.player = player;
 };
 
 /**
  * @description Realiza a checagem entre a posição do inimigo e a do jogador
  */
 Enemy.prototype.checkCollision = function() {
-  var player = window.player;
-  var playerPositionRange = player.getPositionRange();
+  /**
+  * A recuperação do jogador através do escopo global abaixo foi apontada pelo
+  * revisor do projeto como quebra de encapsulamento.
+  * Por conta disso a instancia de player agora é passado na função construtora
+  * da classe Enemy, e recuperado como um atributo de Enemy através de "this.player".
+  * A alternativa dada pelo revisor de passar o "player" como parâmetro nesta
+  * função não elimina o problema de encapsulamento apontado pelo mesmo,
+  * visto que a função "checkCollision" é chamada dentro de outra função da
+  * classe Enemy, a "update". O problema de recuperar a referência ao player
+  * sem utilizar o escopo global continuaria sendo o mesmo.
+  */
+  //var player = window.player;
+  //var playerPositionRange = player.getPositionRange();
+  var playerPositionRange = this.player.getPositionRange();
   var collisionOnX = false;
 	var collisionOnY = false;
 
@@ -41,7 +60,7 @@ Enemy.prototype.checkCollision = function() {
 
   // Verifica se ambos os eixos colidiram
 	if (collisionOnX && collisionOnY) {
-		player.reset();
+		this.player.reset();
 	}
 }
 
@@ -208,11 +227,11 @@ Player.prototype.handleInput = function(key) {
 var player = new Player();
 
 var allEnemies = [
-  new Enemy(0,55,100),
-  new Enemy(0,140,200),
-  new Enemy(0,220,150),
-  new Enemy(0,140,50),
-  new Enemy(0,55,250)
+  new Enemy(0,55,100, player),
+  new Enemy(0,140,200, player),
+  new Enemy(0,220,150, player),
+  new Enemy(0,140,50, player),
+  new Enemy(0,55,250, player)
 ];
 
 // This listens for key presses and sends the keys to your
@@ -227,3 +246,43 @@ document.addEventListener('keyup', function(e) {
 
     player.handleInput(allowedKeys[e.keyCode]);
 });
+
+/**
+ * Esta seria uma outra alternativa para o problema de encapsulamento do método
+ * "checkCollision" da classe Enemy.
+ * Aqui é implementada no escopo global uma função de mesmo nome e lógica, onde
+ * será informado a instancia de player, e um array contendo os inimigos.
+ * Esta função deverá ser chamada na linha 82 do arquivo "engine.js" recuperando
+ * os argumentos acima diretamente do escopo global.
+ */
+/*
+window.checkCollisions = function(player, enemies) {
+	var playerPositionRange = player.getPositionRange();
+	var collisionOnX = false;
+	var collisionOnY = false;
+
+	for(var enemy in enemies) {
+
+		// Verifica a posição X do inimigo em relação ao jogador
+		for(var posX in playerPositionRange.x) {
+			if (Math.trunc(enemy.x) === playerPositionRange.x[posX]) {
+				collisionOnX = true;
+				break;
+			}
+		}
+
+	  // Verifica a posição Y do inimigo em relação ao jogador
+		for(var posY in playerPositionRange.y) {
+			if (Math.trunc(enemy.y) === playerPositionRange.y[posY]) {
+				collisionOnY = true;
+				break;
+			}
+		}
+
+	  // Verifica se ambos os eixos colidiram
+		if (collisionOnX && collisionOnY) {
+			player.reset();
+		}
+	}
+}
+*/
